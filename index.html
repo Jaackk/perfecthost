@@ -381,11 +381,12 @@
       width: 100%;
       height: 100%;
       border-radius: 10px;
-      border-color: #05243d;
+      border-color: color-mix(in srgb, var(--status) 38%, #b47b35);
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%),
+        radial-gradient(circle at 32% 24%, rgba(255,255,255,0.18), transparent 22%),
+        linear-gradient(135deg, rgba(255,255,255,0.2), transparent 42%),
         repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 34px),
-        linear-gradient(90deg, #12608e, #073257);
+        linear-gradient(180deg, color-mix(in srgb, var(--status) 60%, #06351f), color-mix(in srgb, var(--status) 32%, #052012));
       box-shadow: inset 0 -10px 0 rgba(0,0,0,0.2), inset 0 0 0 2px rgba(93,157,196,0.18), 0 10px 18px rgba(0,0,0,0.3);
     }
     .banquette .shape { width: 54%; height: 72%; }
@@ -782,6 +783,16 @@
       display: grid;
     }
 
+    .edit-tools.collapsed {
+      width: auto;
+      grid-template-columns: 92px;
+      padding: 6px;
+    }
+
+    .edit-tools.collapsed .edit-action {
+      display: none;
+    }
+
     .btn {
       height: 30px;
       border: 1px solid var(--line);
@@ -1005,13 +1016,13 @@
     <div class="key" aria-label="Status key">
       <span><i style="--c:#c9c0b3"></i>Empty</span>
       <span><i style="--c:#8fd7ff"></i>Sat</span>
-      <span><i style="--c:#0a3f91"></i>Water</span>
-      <span><i style="--c:#ffbd66"></i>Drinks ordered</span>
-      <span><i style="--c:#c96200"></i>Drinks arrived</span>
-      <span><i style="--c:#c8a7ff"></i>Food ordered</span>
-      <span><i style="--c:#5b2dbd"></i>Food arrived</span>
-      <span><i style="--c:#a7e88b"></i>Bill</span>
-      <span><i style="--c:#087a3d"></i>Paid</span>
+      <span><i style="--c:#8fd7ff"></i>Water</span>
+      <span><i style="--c:#c96200"></i>Drinks ordered</span>
+      <span><i style="--c:#ffbd66"></i>Drinks arrived</span>
+      <span><i style="--c:#5b2dbd"></i>Food ordered</span>
+      <span><i style="--c:#c8a7ff"></i>Food arrived</span>
+      <span><i style="--c:#087a3d"></i>Bill</span>
+      <span><i style="--c:#a7e88b"></i>Paid</span>
       <span><i style="--c:#ff1744"></i>!</span>
     </div>
 
@@ -1024,12 +1035,13 @@
       <button class="btn" id="savePlanBtn" type="button">Save</button>
     </div>
     <div class="edit-tools" id="editTools">
-      <button class="btn" id="typeBtn" type="button">Type</button>
-      <button class="btn" id="seatsBtn" type="button">Seats</button>
-      <button class="btn" id="splitBtn" type="button">Split</button>
-      <button class="btn" id="joinBtn" type="button">Join</button>
-      <button class="btn" id="rotateBtn" type="button">Rotate</button>
-      <button class="btn primary" id="doneEditBtn" type="button">Done</button>
+      <button class="btn" id="editToolsToggle" type="button">Min</button>
+      <button class="btn edit-action" id="typeBtn" type="button">Type</button>
+      <button class="btn edit-action" id="seatsBtn" type="button">Seats</button>
+      <button class="btn edit-action" id="splitBtn" type="button">Split</button>
+      <button class="btn edit-action" id="joinBtn" type="button">Join</button>
+      <button class="btn edit-action" id="rotateBtn" type="button">Rotate</button>
+      <button class="btn primary edit-action" id="doneEditBtn" type="button">Done</button>
     </div>
 
     <form class="note" id="noteForm" hidden>
@@ -1076,15 +1088,15 @@
     const statuses = {
       empty: { label: "Empty", color: "#c9c0b3" },
       seated: { label: "Sat", color: "#8fd7ff" },
-      water: { label: "Water done", color: "#0a3f91" },
-      drinks: { label: "Drinks ordered", color: "#ffbd66" },
-      drinksArrived: { label: "Drinks arrived", color: "#c96200" },
-      food: { label: "Food ordered", color: "#c8a7ff" },
-      foodArrived: { label: "Food arrived", color: "#5b2dbd" },
-      eating: { label: "Eating", color: "#5b2dbd" },
+      water: { label: "Water done", color: "#8fd7ff" },
+      drinks: { label: "Drinks ordered", color: "#c96200" },
+      drinksArrived: { label: "Drinks arrived", color: "#ffbd66" },
+      food: { label: "Food ordered", color: "#5b2dbd" },
+      foodArrived: { label: "Food arrived", color: "#c8a7ff" },
+      eating: { label: "Eating", color: "#c8a7ff" },
       attention: { label: "Attention!", color: "#ff1744" },
-      bill: { label: "Bill requested", color: "#a7e88b" },
-      paid: { label: "Bill paid", color: "#087a3d" },
+      bill: { label: "Bill requested", color: "#087a3d" },
+      paid: { label: "Bill paid", color: "#a7e88b" },
       left: { label: "Reset", color: "#6b7280" }
     };
 
@@ -1239,6 +1251,7 @@
 
     let state = load();
     let editMode = false;
+    let editToolsCollapsed = false;
     let dragging = null;
     const floor = document.getElementById("floor");
     const editor = document.getElementById("editor");
@@ -1403,6 +1416,7 @@
       if (table.steps.food.done) return "food";
       if (table.steps.drinksArrived.done) return "drinksArrived";
       if (table.steps.drinks.done) return "drinks";
+      if (table.drinkHistory?.length) return "drinksArrived";
       if (table.steps.water.done) return "water";
       return "seated";
     }
@@ -1430,9 +1444,15 @@
     }
 
     function stepLabel(table, key, label) {
-      if (key === "drinks") return `${ordinal(table.drinkRound)} Drinks ordered`;
-      if (key === "drinksArrived") return `${ordinal(table.drinkRound)} Drinks arrived`;
+      if (key === "drinks") return `${ordinal(table.drinkRound)} Drinks`;
+      if (key === "drinksArrived") return "Drinks arrived";
       return label;
+    }
+
+    function ensureSeated(table) {
+      if (table.guests > 0) return;
+      table.guests = tableDefaultGuests(table);
+      table.seatedAt = table.seatedAt || new Date().toISOString();
     }
 
     function completeDrinkRound(table, arrivedTime) {
@@ -1581,6 +1601,8 @@
       document.getElementById("undoBtn").disabled = undoStack.length === 0;
       document.body.classList.toggle("edit-mode", editMode);
       document.getElementById("editBtn").classList.toggle("active", editMode);
+      document.getElementById("editTools").classList.toggle("collapsed", editToolsCollapsed);
+      document.getElementById("editToolsToggle").textContent = editToolsCollapsed ? "Tools" : "Min";
     }
 
     function applyZoom() {
@@ -1734,6 +1756,7 @@
           const step = table.steps[stepButton.dataset.step];
           step.done = !step.done;
           step.time = step.done ? (step.time || new Date().toISOString()) : "";
+          if (step.done) ensureSeated(table);
           if (stepButton.dataset.step === "drinksArrived" && step.done && !table.steps.drinks.done) {
             table.steps.drinks.done = true;
             table.steps.drinks.time = table.steps.drinks.time || step.time;
@@ -1753,7 +1776,10 @@
         save();
         render();
       }
-      if (event.target.matches("[data-attention]")) mutate(() => table.attention = !table.attention);
+      if (event.target.matches("[data-attention]")) mutate(() => {
+        table.attention = !table.attention;
+        if (table.attention) ensureSeated(table);
+      });
       if (event.target.matches("[data-left]")) mutate(() => table.leftTime = table.leftTime ? "" : new Date().toISOString());
       if (event.target.matches("[data-guests]")) {
         const delta = Number(event.target.dataset.guests);
@@ -1871,11 +1897,18 @@
 
     document.getElementById("editBtn").addEventListener("click", () => {
       editMode = !editMode;
+      if (!editMode) editToolsCollapsed = false;
+      render();
+    });
+
+    document.getElementById("editToolsToggle").addEventListener("click", () => {
+      editToolsCollapsed = !editToolsCollapsed;
       render();
     });
 
     document.getElementById("doneEditBtn").addEventListener("click", () => {
       editMode = false;
+      editToolsCollapsed = false;
       save();
       render();
     });
