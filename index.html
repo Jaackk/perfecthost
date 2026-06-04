@@ -54,8 +54,8 @@
     .map-viewport {
       position: absolute;
       inset: 0;
-      overflow: auto;
-      touch-action: pan-x pan-y;
+      overflow: hidden;
+      touch-action: none;
       background: #071823;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -398,6 +398,7 @@
       background: #f7f3ea;
       border: 2px solid rgba(46, 56, 53, 0.18);
       box-shadow: inset 0 0 0 6px rgba(255,255,255,0.7);
+      display: none;
     }
 
     .sofa-table .shape::after { display: none; }
@@ -419,7 +420,7 @@
       line-height: 1.02;
       font-weight: 950;
       pointer-events: none;
-      text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.92);
     }
 
     .badge small {
@@ -821,6 +822,51 @@
 
     .note.open { display: grid; }
 
+    .settings {
+      position: absolute;
+      z-index: 43;
+      left: max(8px, env(safe-area-inset-left));
+      top: 52px;
+      width: min(320px, calc(100vw - 16px));
+      display: none;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+    }
+
+    .settings.open { display: grid; }
+
+    .settings-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .settings label {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 72px;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.74rem;
+      font-weight: 950;
+    }
+
+    .settings input {
+      text-align: center;
+    }
+
+    .settings-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     [hidden] {
       display: none !important;
     }
@@ -895,9 +941,45 @@
         left: max(48px, env(safe-area-inset-left));
       }
     }
+
+    .rotate-guard {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(15, 118, 109, 0.24), transparent 34%),
+        #041019;
+      color: #fff8df;
+      text-align: center;
+    }
+
+    .rotate-guard strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+      letter-spacing: 0.02em;
+    }
+
+    .rotate-guard span {
+      color: rgba(255, 248, 223, 0.72);
+      font-weight: 850;
+    }
+
+    @media (orientation: portrait) and (max-width: 920px) {
+      .rotate-guard { display: grid; }
+    }
   </style>
 </head>
 <body>
+  <div class="rotate-guard" aria-hidden="true">
+    <div>
+      <strong>Rotate to landscape</strong>
+      <span>Perfect Host is designed as a horizontal floor plan.</span>
+    </div>
+  </div>
   <main class="app">
     <section class="map-viewport" id="mapViewport">
       <div class="map-scale" id="mapScale">
@@ -911,6 +993,7 @@
       <button class="icon" id="demoBtn" type="button">↺</button>
       <button class="icon" id="addBtn" type="button">+</button>
       <button class="icon" id="editBtn" type="button">✎</button>
+      <button class="icon" id="settingsBtn" type="button">⚙</button>
     </div>
 
     <div class="zoom">
@@ -920,14 +1003,16 @@
     </div>
 
     <div class="key" aria-label="Status key">
-      <span><i style="--c:#d8d0c3"></i>Empty</span>
-      <span><i style="--c:#547c92"></i>Sat</span>
-      <span><i style="--c:#4f9fc7"></i>Water</span>
-      <span><i style="--c:#bd7a42"></i>Food</span>
-      <span><i style="--c:#398767"></i>Eating</span>
-      <span><i style="--c:#89a85c"></i>Bill</span>
-      <span><i style="--c:#1f6f4d"></i>Paid</span>
-      <span><i style="--c:#c64b43"></i>!</span>
+      <span><i style="--c:#c9c0b3"></i>Empty</span>
+      <span><i style="--c:#8fd7ff"></i>Sat</span>
+      <span><i style="--c:#0a3f91"></i>Water</span>
+      <span><i style="--c:#ffbd66"></i>Drinks ordered</span>
+      <span><i style="--c:#c96200"></i>Drinks arrived</span>
+      <span><i style="--c:#c8a7ff"></i>Food ordered</span>
+      <span><i style="--c:#5b2dbd"></i>Food arrived</span>
+      <span><i style="--c:#a7e88b"></i>Bill</span>
+      <span><i style="--c:#087a3d"></i>Paid</span>
+      <span><i style="--c:#ff1744"></i>!</span>
     </div>
 
     <aside class="editor" id="editor"></aside>
@@ -951,6 +1036,21 @@
       <textarea id="noteText" placeholder="Note"></textarea>
       <button class="btn primary" id="noteSave" type="button" onclick="saveCurrentNote()">Save</button>
     </form>
+
+    <form class="settings" id="settingsForm" hidden>
+      <div class="settings-head">
+        <strong>Settings</strong>
+        <button class="close" id="settingsClose" type="button">×</button>
+      </div>
+      <label>Drinks flag <input id="drinkWarnInput" min="1" max="60" type="number" /></label>
+      <label>Drinks urgent <input id="drinkCriticalInput" min="1" max="90" type="number" /></label>
+      <label>Food flag <input id="foodWarnInput" min="1" max="120" type="number" /></label>
+      <label>Food urgent <input id="foodCriticalInput" min="1" max="180" type="number" /></label>
+      <div class="settings-actions">
+        <button class="btn" id="settingsReset" type="button">Defaults</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
   </main>
 
   <div class="install" id="installPrompt">
@@ -964,21 +1064,28 @@
   <script>
     const STORAGE_KEY = "perfect-host-v10";
     const UNDO_LIMIT = 50;
-    const MAP_VERSION = "blank-map-v1";
+    const MAP_VERSION = "blank-map-v2";
     const FLOOR_WIDTH = 1665;
     const FLOOR_HEIGHT = 945;
+    const DEFAULT_SETTINGS = {
+      drinkWarnMins: 10,
+      drinkCriticalMins: 20,
+      foodWarnMins: 30,
+      foodCriticalMins: 40
+    };
     const statuses = {
-      empty: { label: "Empty", color: "#d8d0c3" },
-      seated: { label: "Sat", color: "#547c92" },
-      water: { label: "Water due", color: "#4f9fc7" },
-      drinks: { label: "Drinks in", color: "#6f8fa3" },
-      food: { label: "Food ordered", color: "#bd7a42" },
-      foodArrived: { label: "Food arrived", color: "#d09b4b" },
-      eating: { label: "Eating", color: "#398767" },
-      attention: { label: "Attention!", color: "#c64b43" },
-      bill: { label: "Bill requested", color: "#89a85c" },
-      paid: { label: "Bill paid", color: "#1f6f4d" },
-      left: { label: "Reset", color: "#777873" }
+      empty: { label: "Empty", color: "#c9c0b3" },
+      seated: { label: "Sat", color: "#8fd7ff" },
+      water: { label: "Water done", color: "#0a3f91" },
+      drinks: { label: "Drinks ordered", color: "#ffbd66" },
+      drinksArrived: { label: "Drinks arrived", color: "#c96200" },
+      food: { label: "Food ordered", color: "#c8a7ff" },
+      foodArrived: { label: "Food arrived", color: "#5b2dbd" },
+      eating: { label: "Eating", color: "#5b2dbd" },
+      attention: { label: "Attention!", color: "#ff1744" },
+      bill: { label: "Bill requested", color: "#a7e88b" },
+      paid: { label: "Bill paid", color: "#087a3d" },
+      left: { label: "Reset", color: "#6b7280" }
     };
 
     const steps = [
@@ -994,41 +1101,41 @@
     ];
 
     const tableSpecs = [
-      spec("10", 86, 198, 126, 68, 6, "rectangle", "six"),
-      spec("11", 218, 154, 64, 86, 4),
-      spec("12", 296, 154, 64, 86, 4),
-      spec("13", 374, 154, 64, 86, 4),
-      spec("14", 452, 154, 64, 86, 4),
-      spec("15", 530, 154, 64, 86, 4),
-      spec("16", 608, 154, 64, 86, 4),
-      spec("20", 326, 298, 64, 86, 4),
-      spec("21", 414, 298, 64, 86, 4),
-      spec("23", 584, 298, 64, 86, 4),
-      spec("30", 326, 426, 64, 86, 4),
-      spec("31", 414, 426, 64, 86, 4),
-      spec("32", 504, 426, 58, 64, 2, "square", "two"),
-      spec("33", 590, 426, 64, 86, 4),
-      spec("40", 84, 520, 154, 68, 6, "rectangle", "six"),
-      spec("50", 882, 314, 64, 86, 4),
-      spec("51", 882, 160, 64, 86, 4),
-      spec("52", 982, 160, 58, 64, 2, "square", "two"),
-      spec("53", 982, 314, 64, 86, 4),
-      spec("54", 1086, 306, 58, 64, 2, "square", "two"),
-      spec("55", 1086, 160, 58, 64, 2, "square", "two"),
-      spec("56", 1190, 184, 64, 96, 4),
-      spec("57", 1190, 328, 58, 64, 2, "square", "two"),
-      spec("64", 1450, 438, 72, 72, 2, "round", "round2"),
-      spec("70", 970, 664, 74, 74, 3, "round", "round3"),
-      spec("71", 1140, 672, 74, 74, 3, "round", "round3"),
-      spec("74", 1450, 574, 76, 76, 3, "high", "round3"),
-      spec("75", 1072, 484, 64, 64, 2, "high", "round2"),
-      spec("76", 1252, 484, 64, 64, 2, "high", "round2"),
-      spec("60", 1282, 170, 62, 142, 0, "sofa", "none"),
-      spec("61", 1378, 170, 62, 142, 0, "sofa", "none"),
-      spec("62", 1438, 170, 62, 142, 0, "sofa", "none"),
-      spec("63", 1532, 170, 62, 142, 0, "sofa", "none"),
-      spec("72", 1258, 735, 62, 136, 0, "sofa", "none"),
-      spec("73", 1364, 735, 62, 136, 0, "sofa", "none")
+      spec("10", 120, 216, 126, 68, 6, "rectangle", "six"),
+      spec("11", 260, 188, 64, 86, 4),
+      spec("12", 354, 188, 64, 86, 4),
+      spec("13", 448, 188, 64, 86, 4),
+      spec("14", 542, 188, 64, 86, 4),
+      spec("15", 636, 188, 64, 86, 4),
+      spec("16", 730, 188, 64, 86, 4),
+      spec("20", 420, 330, 64, 86, 4),
+      spec("21", 540, 330, 64, 86, 4),
+      spec("23", 730, 330, 64, 86, 4),
+      spec("30", 420, 470, 64, 86, 4),
+      spec("31", 540, 470, 64, 86, 4),
+      spec("32", 660, 472, 58, 64, 2, "square", "two"),
+      spec("33", 746, 470, 64, 86, 4),
+      spec("40", 118, 610, 154, 68, 6, "rectangle", "six"),
+      spec("50", 968, 338, 64, 86, 4),
+      spec("51", 968, 198, 64, 86, 4),
+      spec("52", 1082, 206, 58, 64, 2, "square", "two"),
+      spec("53", 1082, 338, 64, 86, 4),
+      spec("54", 1192, 338, 58, 64, 2, "square", "two"),
+      spec("55", 1192, 206, 58, 64, 2, "square", "two"),
+      spec("56", 1300, 226, 64, 96, 4),
+      spec("57", 1300, 350, 58, 64, 2, "square", "two"),
+      spec("64", 1516, 468, 72, 72, 2, "round", "round2"),
+      spec("70", 1124, 712, 74, 74, 3, "round", "round3"),
+      spec("71", 1256, 716, 74, 74, 3, "round", "round3"),
+      spec("74", 1516, 604, 76, 76, 3, "high", "round3"),
+      spec("75", 1172, 514, 64, 64, 2, "high", "round2"),
+      spec("76", 1312, 514, 64, 64, 2, "high", "round2"),
+      spec("60", 1362, 218, 62, 142, 0, "sofa", "none"),
+      spec("61", 1454, 218, 62, 142, 0, "sofa", "none"),
+      spec("62", 1518, 218, 62, 142, 0, "sofa", "none"),
+      spec("63", 1590, 218, 62, 142, 0, "sofa", "none"),
+      spec("72", 1360, 750, 62, 136, 0, "sofa", "none"),
+      spec("73", 1458, 750, 62, 136, 0, "sofa", "none")
     ];
 
     function spec(id, x, y, w, h, seatCount, tableType = "rectangle", chairMode = "sides") {
@@ -1065,6 +1172,8 @@
         attentionNote: "",
         moment: "",
         leftTime: "",
+        drinkRound: 1,
+        drinkHistory: [],
         layout: null,
         steps: blankSteps(stepOverrides),
         ...extras
@@ -1137,6 +1246,11 @@
     const mapScale = document.getElementById("mapScale");
     const noteForm = document.getElementById("noteForm");
     const noteText = document.getElementById("noteText");
+    const settingsForm = document.getElementById("settingsForm");
+    const drinkWarnInput = document.getElementById("drinkWarnInput");
+    const drinkCriticalInput = document.getElementById("drinkCriticalInput");
+    const foodWarnInput = document.getElementById("foodWarnInput");
+    const foodCriticalInput = document.getElementById("foodCriticalInput");
     const installPrompt = document.getElementById("installPrompt");
 
     function load() {
@@ -1166,10 +1280,13 @@
 
     function normalizeState(value) {
       value.fixtures ||= defaultFixtures();
+      value.settings = normalizeSettings(value.settings);
       const needsLayoutMigration = value.mapVersion !== MAP_VERSION;
       value.tables.forEach((table, index) => {
         const meta = tableSpecs.find(t => t.id === table.id);
         table.steps = blankSteps(table.steps || {});
+        table.drinkRound ||= 1;
+        table.drinkHistory ||= [];
         table.seatCount ??= meta?.seatCount ?? table.seatCount ?? 4;
         table.tableType ??= meta?.tableType ?? "rectangle";
         table.chairMode ??= meta?.chairMode ?? "sides";
@@ -1188,6 +1305,15 @@
       });
       value.mapVersion = MAP_VERSION;
       return value;
+    }
+
+    function normalizeSettings(settings = {}) {
+      const out = { ...DEFAULT_SETTINGS, ...settings };
+      out.drinkWarnMins = Math.max(1, Number(out.drinkWarnMins) || DEFAULT_SETTINGS.drinkWarnMins);
+      out.drinkCriticalMins = Math.max(out.drinkWarnMins, Number(out.drinkCriticalMins) || DEFAULT_SETTINGS.drinkCriticalMins);
+      out.foodWarnMins = Math.max(1, Number(out.foodWarnMins) || DEFAULT_SETTINGS.foodWarnMins);
+      out.foodCriticalMins = Math.max(out.foodWarnMins, Number(out.foodCriticalMins) || DEFAULT_SETTINGS.foodCriticalMins);
+      return out;
     }
 
     function save() {
@@ -1256,13 +1382,13 @@
     function alerts(table) {
       if (!table.guests || table.leftTime) return [];
       const out = [];
-      const seated = minsSince(table.seatedAt);
-      if (!table.steps.drinks.done && seated >= 10) out.push("Drinks");
-      if (table.steps.drinks.done && !table.steps.drinksArrived.done && minsBetween(table.steps.drinks.time) >= 10) out.push("Drinks");
-      if (table.steps.food.done && !table.steps.foodArrived.done && minsSince(table.steps.food.time) >= 30) out.push("Food");
-      if (table.steps.foodArrived.done && !table.steps.checkBack.done && minsSince(table.steps.foodArrived.time) >= 8) out.push("Check");
-      if (seated >= 90) out.push("Long");
       if (table.attention) out.push("!");
+      const drinksWait = table.steps.drinks.done && !table.steps.drinksArrived.done ? minsBetween(table.steps.drinks.time) : 0;
+      if (drinksWait >= state.settings.drinkCriticalMins) out.push(`Drinks ${state.settings.drinkCriticalMins}m`);
+      else if (drinksWait >= state.settings.drinkWarnMins) out.push(`Drinks ${state.settings.drinkWarnMins}m`);
+      const foodWait = table.steps.food.done && !table.steps.foodArrived.done ? minsSince(table.steps.food.time) : 0;
+      if (foodWait >= state.settings.foodCriticalMins) out.push(`Food ${state.settings.foodCriticalMins}m`);
+      else if (foodWait >= state.settings.foodWarnMins) out.push(`Food ${state.settings.foodWarnMins}m`);
       return out;
     }
 
@@ -1270,13 +1396,14 @@
       if (table.attention) return "attention";
       if (table.leftTime) return "left";
       if (!table.guests) return "empty";
-      if (!table.steps.water.done) return "water";
       if (table.steps.billPaid.done) return "paid";
       if (table.steps.moreDrinksBill.done) return "bill";
-      if (table.steps.checkBack.done || table.steps.clearDessert.done) return "eating";
+      if (table.steps.checkBack.done || table.steps.clearDessert.done) return "foodArrived";
       if (table.steps.foodArrived.done) return "foodArrived";
       if (table.steps.food.done) return "food";
-      if (table.steps.drinksArrived.done || table.steps.drinks.done) return "drinks";
+      if (table.steps.drinksArrived.done) return "drinksArrived";
+      if (table.steps.drinks.done) return "drinks";
+      if (table.steps.water.done) return "water";
       return "seated";
     }
 
@@ -1290,6 +1417,37 @@
       if (table.moment) return table.moment;
       for (const [key] of steps) if (table.steps[key]?.note) return table.steps[key].note;
       return "";
+    }
+
+    function ordinal(value) {
+      const n = Number(value) || 1;
+      const mod100 = n % 100;
+      if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+      if (n % 10 === 1) return `${n}st`;
+      if (n % 10 === 2) return `${n}nd`;
+      if (n % 10 === 3) return `${n}rd`;
+      return `${n}th`;
+    }
+
+    function stepLabel(table, key, label) {
+      if (key === "drinks") return `${ordinal(table.drinkRound)} Drinks ordered`;
+      if (key === "drinksArrived") return `${ordinal(table.drinkRound)} Drinks arrived`;
+      return label;
+    }
+
+    function completeDrinkRound(table, arrivedTime) {
+      const round = table.drinkRound || 1;
+      table.drinkHistory ||= [];
+      table.drinkHistory.push({
+        round,
+        orderedTime: table.steps.drinks.time || arrivedTime,
+        arrivedTime,
+        orderNote: table.steps.drinks.note || "",
+        arrivalNote: table.steps.drinksArrived.note || ""
+      });
+      table.drinkRound = round + 1;
+      table.steps.drinks = { done: false, time: "", note: "" };
+      table.steps.drinksArrived = { done: false, time: "", note: "" };
     }
 
     function tableDefaultGuests(table) {
@@ -1323,11 +1481,12 @@
         const layout = table.layout || getSpecLayout(table, index);
         const s = statuses[statusKey(table)];
         const tableAlerts = alerts(table);
+        const visualColor = tableAlerts.length ? statuses.attention.color : s.color;
         const chairMarkup = renderChairs(table);
         return `
           <button class="table ${tableClass(table, layout)} ${table.id === state.selectedId ? "selected" : ""} ${tableAlerts.length ? "alert" : ""}"
             data-id="${table.id}" type="button"
-            style="--x:${layout.x}px;--y:${layout.y}px;--w:${layout.w}px;--h:${layout.h}px;--status:${s.color};transform:rotate(${layout.r || 0}deg)"
+            style="--x:${layout.x}px;--y:${layout.y}px;--w:${layout.w}px;--h:${layout.h}px;--status:${visualColor};transform:rotate(${layout.r || 0}deg)"
             aria-label="${table.name}">
             <span class="piece">
               ${chairMarkup}
@@ -1384,7 +1543,7 @@
           <div class="elapsed">Sat ${time(table.seatedAt)}<br>${precise(table.seatedAt) || "-"}</div>
         </div>
         <div class="steps">
-          ${steps.map(([key, label]) => renderStep(table, key, label)).join("")}
+          ${steps.map(([key, label]) => renderStep(table, key, stepLabel(table, key, label))).join("")}
         </div>
         <div class="editor-actions">
           <button class="btn" data-left type="button">${table.leftTime ? "Reopen" : "Left"}</button>
@@ -1430,18 +1589,20 @@
       mapScale.style.setProperty("--zoom", zoom);
       floor.style.setProperty("--zoom", zoom);
       const rect = mapViewport.getBoundingClientRect();
-      mapScale.style.setProperty("--map-x", `${Math.max(0, (rect.width - FLOOR_WIDTH * zoom) / 2)}px`);
-      mapScale.style.setProperty("--map-y", `${Math.max(2, Math.min(8, rect.height - FLOOR_HEIGHT * zoom))}px`);
+      const spareX = rect.width - FLOOR_WIDTH * zoom;
+      const spareY = rect.height - FLOOR_HEIGHT * zoom;
+      mapScale.style.setProperty("--map-x", `${spareX >= 0 ? spareX / 2 : spareX / 2}px`);
+      mapScale.style.setProperty("--map-y", `${spareY >= 0 ? Math.min(8, spareY / 2) : spareY * 0.68}px`);
     }
 
     function fitZoom() {
       const rect = mapViewport.getBoundingClientRect();
       const widthFit = rect.width / FLOOR_WIDTH;
       const heightFit = rect.height / FLOOR_HEIGHT;
-      zoom = Math.max(0.32, Math.min(1.35, Math.min(widthFit, heightFit * 1.14)));
+      zoom = Math.max(0.32, Math.min(1.35, Math.max(widthFit, heightFit)));
       applyZoom();
-      mapViewport.scrollLeft = Math.max(0, (FLOOR_WIDTH * zoom + Math.max(0, (rect.width - FLOOR_WIDTH * zoom) / 2) * 2 - rect.width) / 2);
-      mapViewport.scrollTop = Math.max(0, (FLOOR_HEIGHT * zoom + Math.max(0, (rect.height - FLOOR_HEIGHT * zoom) / 2) * 2 - rect.height) / 2);
+      mapViewport.scrollLeft = 0;
+      mapViewport.scrollTop = 0;
     }
 
     floor.addEventListener("pointerdown", (event) => {
@@ -1577,6 +1738,10 @@
             table.steps.drinks.done = true;
             table.steps.drinks.time = table.steps.drinks.time || step.time;
           }
+          if (stepButton.dataset.step === "drinksArrived" && step.done) {
+            completeDrinkRound(table, step.time);
+            return;
+          }
           if (stepButton.dataset.step === "foodArrived" && step.done && !table.steps.food.done) {
             table.steps.food.done = true;
             table.steps.food.time = table.steps.food.time || step.time;
@@ -1631,6 +1796,47 @@
     });
 
     document.getElementById("noteSave").addEventListener("click", saveCurrentNote);
+
+    function syncSettingsForm() {
+      const settings = normalizeSettings(state.settings);
+      drinkWarnInput.value = settings.drinkWarnMins;
+      drinkCriticalInput.value = settings.drinkCriticalMins;
+      foodWarnInput.value = settings.foodWarnMins;
+      foodCriticalInput.value = settings.foodCriticalMins;
+    }
+
+    function closeSettings() {
+      settingsForm.classList.remove("open");
+      settingsForm.hidden = true;
+    }
+
+    document.getElementById("settingsBtn").addEventListener("click", () => {
+      syncSettingsForm();
+      settingsForm.hidden = false;
+      settingsForm.classList.add("open");
+    });
+
+    document.getElementById("settingsClose").addEventListener("click", closeSettings);
+
+    document.getElementById("settingsReset").addEventListener("click", () => {
+      drinkWarnInput.value = DEFAULT_SETTINGS.drinkWarnMins;
+      drinkCriticalInput.value = DEFAULT_SETTINGS.drinkCriticalMins;
+      foodWarnInput.value = DEFAULT_SETTINGS.foodWarnMins;
+      foodCriticalInput.value = DEFAULT_SETTINGS.foodCriticalMins;
+    });
+
+    settingsForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      mutate(() => {
+        state.settings = normalizeSettings({
+          drinkWarnMins: drinkWarnInput.value,
+          drinkCriticalMins: drinkCriticalInput.value,
+          foodWarnMins: foodWarnInput.value,
+          foodCriticalMins: foodCriticalInput.value
+        });
+      });
+      closeSettings();
+    });
 
     document.getElementById("undoBtn").addEventListener("click", () => {
       const previous = undoStack.pop();
@@ -1790,12 +1996,19 @@
       installPrompt.classList.add("show");
     }
 
+    async function lockLandscape() {
+      try {
+        if (screen.orientation?.lock) await screen.orientation.lock("landscape");
+      } catch {}
+    }
+
     document.getElementById("dismissInstall").addEventListener("click", () => {
       localStorage.setItem("perfect-host-install-dismissed", "1");
       installPrompt.classList.remove("show");
     });
 
     save();
+    lockLandscape();
     render();
     setTimeout(fitZoom, 60);
     setTimeout(maybeShowInstallPrompt, 300);
