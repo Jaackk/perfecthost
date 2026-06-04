@@ -30,7 +30,7 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
-      background: #dbc099;
+      background: #041019;
       color: var(--ink);
       font-family: Inter, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
       -webkit-text-size-adjust: 100%;
@@ -45,7 +45,10 @@
       position: fixed;
       inset: 0;
       overflow: hidden;
-      background: #d8bb91;
+      background:
+        linear-gradient(180deg, rgba(4, 12, 18, 0.88) 0 42px, transparent 42px),
+        radial-gradient(circle at 50% 0%, rgba(24, 96, 123, 0.18), transparent 34%),
+        linear-gradient(180deg, #05121b 0%, #071823 100%);
     }
 
     .map-viewport {
@@ -53,12 +56,16 @@
       inset: 0;
       overflow: auto;
       touch-action: pan-x pan-y;
-      background: #d8bb91;
+      background: #071823;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
+    .map-viewport::-webkit-scrollbar { display: none; }
+
     .map-scale {
-      width: calc(960px * var(--zoom, 1));
-      height: calc(650px * var(--zoom, 1));
+      width: calc(var(--floor-w, 1500px) * var(--zoom, 1));
+      height: calc(var(--floor-h, 900px) * var(--zoom, 1));
       position: relative;
       transform-origin: 0 0;
       margin: var(--map-y, 0px) var(--map-x, 0px);
@@ -67,17 +74,35 @@
     .floor {
       position: absolute;
       inset: 0 auto auto 0;
-      width: 960px;
-      height: 650px;
+      width: 1500px;
+      height: 900px;
       transform: scale(var(--zoom, 1));
       transform-origin: 0 0;
-      border: 10px solid #637071;
-      border-radius: 9px;
+      border: 11px solid #101820;
+      border-radius: 14px;
       overflow: hidden;
       background:
-        linear-gradient(90deg, rgba(100, 78, 54, 0.09) 1px, transparent 1px) 0 0 / 42px 100%,
-        linear-gradient(180deg, rgba(100, 78, 54, 0.1) 1px, transparent 1px) 0 0 / 100% 34px,
-        linear-gradient(90deg, #e7d0ad, #f7ebd5 52%, #dfbf95);
+        radial-gradient(circle at 74% 38%, rgba(255, 191, 98, 0.08), transparent 24%),
+        radial-gradient(circle at 12% 58%, rgba(255, 172, 72, 0.07), transparent 20%),
+        repeating-linear-gradient(0deg, rgba(28, 15, 8, 0.14) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(90deg, rgba(255, 223, 170, 0.035) 0 2px, transparent 2px 84px),
+        linear-gradient(90deg, #4f2d1e 0%, #724327 48%, #58331f 100%);
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+        inset 0 0 70px rgba(0, 0, 0, 0.34),
+        0 24px 70px rgba(0, 0, 0, 0.48);
+    }
+
+    .floor::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(6, 14, 18, 0.24), transparent 18%, transparent 72%, rgba(8, 10, 10, 0.28)),
+        radial-gradient(circle at 4% 26%, rgba(246, 182, 92, 0.16), transparent 9%),
+        radial-gradient(circle at 96% 34%, rgba(246, 182, 92, 0.15), transparent 9%);
+      z-index: 2;
     }
 
     .room, .bar, .label, .sofa, .window, .deck {
@@ -88,13 +113,17 @@
     .room {
       display: grid;
       place-items: center;
-      border: 6px solid #778080;
-      background: #cbd8d5;
-      color: rgba(23, 33, 31, 0.72);
+      border: 6px solid #1e2428;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px),
+        #1b2226;
+      color: rgba(255, 250, 242, 0.82);
       font-size: 0.72rem;
       font-weight: 950;
       text-transform: uppercase;
       letter-spacing: 0.16em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.52);
     }
 
     .fixture.wall {
@@ -103,9 +132,9 @@
     }
 
     .fixture.door {
-      background: #f5efe5;
+      background: #24292c;
       border-color: #607071;
-      height: 18px;
+      border-right-color: #c44135;
     }
 
     .edit-mode .fixture {
@@ -114,62 +143,84 @@
     }
 
     .prep {
-      left: 0;
-      top: 0;
-      width: 310px;
-      height: 165px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.44) 25%, transparent 25%) 0 0 / 28px 28px,
-        linear-gradient(225deg, rgba(255,255,255,0.44) 25%, transparent 25%) 0 0 / 28px 28px,
-        #8fb4b0;
+      background: #1c2226;
     }
 
     .storage {
-      right: 0;
-      top: 0;
-      width: 410px;
-      height: 140px;
+      background: #1c2226;
     }
 
     .bar {
-      left: 168px;
-      top: 154px;
-      width: 330px;
-      height: 78px;
-      border: 5px solid #5c6868;
-      background: linear-gradient(180deg, #526260, #3f4f4f);
-      box-shadow: 0 10px 18px rgba(31, 24, 17, 0.22);
+      border: 5px solid #151a1d;
+      background:
+        radial-gradient(circle at 20% 78%, rgba(245, 201, 130, 0.16), transparent 13%),
+        linear-gradient(120deg, rgba(205, 128, 55, 0.22) 0 1px, transparent 1px 16px),
+        linear-gradient(155deg, transparent 0 54%, rgba(198, 122, 57, 0.22) 54% 55%, transparent 55%),
+        linear-gradient(180deg, #171a1b 0%, #25211d 48%, #0c1011 100%);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.08),
+        inset 0 -16px 28px rgba(0,0,0,0.36),
+        0 16px 30px rgba(0, 0, 0, 0.38);
     }
 
     .bar::after {
       content: "";
       position: absolute;
-      inset: 18px 60px;
-      background: #eef0e9;
+      left: 56px;
+      right: 50px;
+      bottom: 9px;
+      height: 15px;
+      background:
+        linear-gradient(180deg, rgba(252, 183, 80, 0.18), transparent),
+        repeating-linear-gradient(90deg, rgba(217, 130, 42, 0.96) 0 8px, rgba(54, 34, 18, 0.96) 8px 15px);
+      box-shadow: 0 -20px 0 rgba(0, 0, 0, 0.2), 0 -1px 0 rgba(255,255,255,0.06);
+    }
+
+    .bar::before {
+      content: "";
+      position: absolute;
+      left: 94px;
+      top: -26px;
+      width: 24px;
+      height: 22px;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #2a231d, #12100f);
+      box-shadow:
+        62px 0 0 #211b16,
+        124px 0 0 #211b16,
+        186px 0 0 #211b16,
+        248px 0 0 #211b16,
+        310px 0 0 #211b16;
+      border: 2px solid #946537;
     }
 
     .label {
-      right: 132px;
-      top: 162px;
-      color: #d0a836;
+      color: rgba(255, 250, 242, 0.78);
       font-size: 1.16rem;
       font-weight: 950;
       letter-spacing: 0.44em;
     }
 
     .sofa {
-      left: 50px;
-      bottom: 112px;
-      width: 440px;
-      height: 40px;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 5px;
+      display: block;
+      border: 4px solid #06233a;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), transparent 30%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 38px),
+        linear-gradient(90deg, #10547d, #073257);
+      box-shadow: inset 0 -10px 0 rgba(0,0,0,0.22), inset 0 0 0 2px rgba(95,153,187,0.22), 0 10px 18px rgba(0,0,0,0.3);
     }
 
-    .sofa i {
-      border-radius: 5px;
-      background: var(--seat);
+    .sofa::after {
+      content: attr(data-label);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.55);
     }
 
     .window {
@@ -177,9 +228,12 @@
       right: 0;
       bottom: 96px;
       height: 12px;
-      background: repeating-linear-gradient(90deg, #fff 0 42px, #b9c6c7 42px 50px);
-      border-top: 3px solid #b9c6c7;
-      border-bottom: 3px solid #b9c6c7;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.22), transparent),
+        repeating-linear-gradient(100deg, rgba(235, 250, 255, 0.72) 0 38px, rgba(31, 43, 48, 0.9) 38px 45px);
+      border-top: 5px solid #20272b;
+      border-bottom: 5px solid #20272b;
+      box-shadow: 0 10px 16px rgba(0,0,0,0.3);
     }
 
     .deck {
@@ -188,9 +242,52 @@
       bottom: -10px;
       height: 106px;
       background:
-        linear-gradient(90deg, rgba(113, 77, 44, 0.18) 1px, transparent 1px) 0 0 / 44px 100%,
-        linear-gradient(180deg, #d7b58f, #e7c59e);
-      border-top: 6px solid #c8b092;
+        repeating-linear-gradient(90deg, rgba(45, 23, 12, 0.42) 0 2px, transparent 2px 68px),
+        repeating-linear-gradient(0deg, rgba(255, 225, 175, 0.08) 0 1px, transparent 1px 18px),
+        linear-gradient(180deg, #a06b3f, #794829 70%, #5f351f);
+      border-top: 6px solid #151b1d;
+    }
+
+    .sea {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 118px;
+      z-index: 1;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 18% 14%, rgba(255,255,255,0.38), transparent 8%),
+        radial-gradient(ellipse at 56% 20%, rgba(255,255,255,0.32), transparent 9%),
+        repeating-linear-gradient(176deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 28px),
+        linear-gradient(180deg, #0b4b68 0%, #1f718e 48%, #d6c6a6 49%, #9c8770 72%, #7a593d 100%);
+      border-bottom: 6px solid #151b1d;
+    }
+
+    .sea::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 22px;
+      height: 26px;
+      background:
+        radial-gradient(circle at 4px 12px, #b6b1a9 0 4px, transparent 5px) 0 0 / 28px 18px,
+        radial-gradient(circle at 15px 5px, #7e7c78 0 3px, transparent 4px) 0 0 / 24px 17px,
+        linear-gradient(180deg, #d8cab0, #9f8c76);
+      box-shadow: 0 -7px 14px rgba(255,255,255,0.18);
+    }
+
+    .sea::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 12px;
+      height: 34px;
+      background:
+        repeating-linear-gradient(172deg, rgba(255,255,255,0.34) 0 3px, transparent 3px 52px),
+        linear-gradient(180deg, transparent, rgba(255,255,255,0.12));
     }
 
     .table {
@@ -213,6 +310,7 @@
       display: grid;
       place-items: center;
       transition: transform 140ms ease, filter 140ms ease;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.22));
     }
 
     .table:active .piece {
@@ -221,35 +319,47 @@
 
     .chair {
       position: absolute;
-      width: 25%;
-      height: 18%;
-      border-radius: 4px;
-      background: #f7f2ea;
-      border: 2px solid rgba(43, 52, 49, 0.16);
+      width: 30%;
+      height: 21%;
+      border-radius: 6px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.32), transparent 34%),
+        linear-gradient(90deg, #d7b078, #f0d29d 52%, #bd8951);
+      border: 2px solid rgba(75, 42, 19, 0.36);
+      box-shadow: inset 0 -4px 0 rgba(73,41,18,0.16), 0 3px 5px rgba(0,0,0,0.22);
       z-index: 1;
     }
 
-    .chair.teal { background: #80b8ad; }
-    .chair.pattern { background: repeating-linear-gradient(45deg, #355651 0 5px, #f7f2e9 5px 10px); }
-    .chair.top { top: 2%; left: 50%; transform: translateX(-50%); }
-    .chair.right { right: 2%; top: 50%; transform: translateY(-50%) rotate(90deg); }
-    .chair.bottom { bottom: 2%; left: 50%; transform: translateX(-50%); }
-    .chair.left { left: 2%; top: 50%; transform: translateY(-50%) rotate(90deg); }
+    .chair.side-left { left: -8%; top: var(--cy); transform: translateY(-50%) rotate(90deg); }
+    .chair.side-right { right: -8%; top: var(--cy); transform: translateY(-50%) rotate(90deg); }
+    .chair.long-top { top: -7%; left: var(--cx); transform: translateX(-50%); }
+    .chair.long-bottom { bottom: -7%; left: var(--cx); transform: translateX(-50%); }
+    .chair.radial {
+      left: 50%;
+      top: 50%;
+      width: 22%;
+      height: 16%;
+      transform: rotate(var(--a)) translateY(-178%) translateX(-50%);
+      transform-origin: center;
+    }
 
     .shape {
-      width: 66%;
-      height: 66%;
-      border: 4px solid color-mix(in srgb, var(--status) 58%, #6f5135);
+      width: 76%;
+      height: 76%;
+      border: 4px solid color-mix(in srgb, var(--status) 38%, #b47b35);
       border-radius: 7px;
       background:
-        linear-gradient(135deg, rgba(255,255,255,0.32), transparent 42%),
-        linear-gradient(180deg, color-mix(in srgb, var(--status) 76%, #e4bf8e), color-mix(in srgb, var(--status) 56%, #7d5434));
-      box-shadow: 0 10px 18px rgba(53, 36, 18, 0.24);
+        radial-gradient(circle at 32% 24%, rgba(255,255,255,0.18), transparent 22%),
+        linear-gradient(135deg, rgba(255,255,255,0.2), transparent 42%),
+        linear-gradient(180deg, color-mix(in srgb, var(--status) 60%, #06351f), color-mix(in srgb, var(--status) 32%, #052012));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -8px 12px rgba(0,0,0,0.22), 0 10px 18px rgba(0, 0, 0, 0.28);
       display: grid;
       place-items: center;
       z-index: 2;
     }
 
+    .table.rectangle .shape,
+    .table.square .shape,
     .table.unit .shape {
       border-radius: 5px;
     }
@@ -264,18 +374,32 @@
       z-index: 1;
     }
 
-    .circle .shape { border-radius: 50%; }
+    .round .shape,
+    .high .shape { border-radius: 50%; width: 72%; height: 72%; }
+    .sofa-table .shape {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      border-color: #05243d;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 34px),
+        linear-gradient(90deg, #12608e, #073257);
+      box-shadow: inset 0 -10px 0 rgba(0,0,0,0.2), inset 0 0 0 2px rgba(93,157,196,0.18), 0 10px 18px rgba(0,0,0,0.3);
+    }
     .banquette .shape { width: 54%; height: 72%; }
 
     .shape::after {
       content: "";
-      width: 44%;
-      height: 44%;
+      width: 38%;
+      height: 38%;
       border-radius: 50%;
       background: #f7f3ea;
       border: 2px solid rgba(46, 56, 53, 0.18);
       box-shadow: inset 0 0 0 6px rgba(255,255,255,0.7);
     }
+
+    .sofa-table .shape::after { display: none; }
 
     .badge {
       position: absolute;
@@ -284,22 +408,24 @@
       transform: translate(-50%, -50%);
       min-width: 46px;
       border-radius: 999px;
-      background: rgba(255, 250, 242, 0.96);
-      border: 1px solid rgba(31, 24, 17, 0.12);
-      box-shadow: 0 4px 10px rgba(31, 24, 17, 0.16);
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      color: #fffaf2;
       padding: 4px 5px;
       z-index: 4;
-      font-size: 0.74rem;
+      font-size: 1.04rem;
       line-height: 1.02;
       font-weight: 950;
       pointer-events: none;
+      text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
     }
 
     .badge small {
       display: block;
       margin-top: 2px;
-      color: var(--muted);
-      font-size: 0.58rem;
+      color: rgba(255, 250, 242, 0.78);
+      font-size: 0.56rem;
       font-weight: 950;
     }
 
@@ -321,13 +447,14 @@
       font-weight: 950;
       z-index: 5;
       pointer-events: none;
+      display: none;
     }
 
     .alert .shape {
       animation: alertPulse 1.55s infinite;
     }
 
-    .alert .flag { color: var(--red); }
+    .alert .flag { display: block; color: var(--red); }
 
     .selected .shape {
       box-shadow: 0 0 0 8px rgba(14, 104, 96, 0.22), 0 14px 22px rgba(53, 36, 18, 0.28);
@@ -357,8 +484,8 @@
     }
 
     .mark, .icon {
-      border: 1px solid rgba(255,255,255,0.46);
-      box-shadow: 0 8px 20px rgba(31, 24, 17, 0.16);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26);
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
     }
@@ -369,8 +496,8 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: rgba(14, 104, 96, 0.94);
-      color: #fff;
+      background: linear-gradient(180deg, #0f766d, #083f3d);
+      color: #fff8df;
       font-weight: 950;
       font-size: 0.8rem;
     }
@@ -379,16 +506,16 @@
       width: 34px;
       height: 34px;
       border-radius: var(--radius);
-      background: rgba(255, 250, 242, 0.88);
-      color: var(--ink);
+      background: rgba(5, 14, 20, 0.86);
+      color: #f5c982;
       font-weight: 950;
       border-color: rgba(38, 31, 23, 0.12);
     }
 
     .icon.active {
-      background: var(--brand);
-      color: #fff;
-      border-color: var(--brand);
+      background: #0e6860;
+      color: #fff8df;
+      border-color: rgba(245, 201, 130, 0.34);
     }
 
     .zoom {
@@ -409,8 +536,8 @@
       gap: 6px;
       padding: 6px;
       border-radius: var(--radius);
-      background: rgba(255, 250, 242, 0.9);
-      border: 1px solid rgba(38, 31, 23, 0.12);
+      background: rgba(5, 14, 20, 0.86);
+      border: 1px solid rgba(255,255,255,0.12);
       box-shadow: var(--shadow);
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
@@ -420,7 +547,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      color: var(--ink);
+      color: #f7efe2;
       font-size: 0.58rem;
       font-weight: 950;
       white-space: nowrap;
@@ -639,7 +766,7 @@
       display: none;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      width: min(330px, calc(100vw - 16px));
+      width: min(410px, calc(100vw - 16px));
       padding: 8px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -811,6 +938,8 @@
       <button class="btn" id="savePlanBtn" type="button">Save</button>
     </div>
     <div class="edit-tools" id="editTools">
+      <button class="btn" id="typeBtn" type="button">Type</button>
+      <button class="btn" id="seatsBtn" type="button">Seats</button>
       <button class="btn" id="splitBtn" type="button">Split</button>
       <button class="btn" id="joinBtn" type="button">Join</button>
       <button class="btn" id="rotateBtn" type="button">Rotate</button>
@@ -832,8 +961,10 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "perfect-host-v9";
+    const STORAGE_KEY = "perfect-host-v10";
     const UNDO_LIMIT = 50;
+    const FLOOR_WIDTH = 1500;
+    const FLOOR_HEIGHT = 900;
     const statuses = {
       empty: { label: "Empty", color: "#d8d0c3" },
       seated: { label: "Sat", color: "#547c92" },
@@ -860,20 +991,54 @@
       ["billPaid", "Paid"]
     ];
 
-    const layouts = [
-      { x: 100, y: 360, w: 78, h: 78, shape: "unit banquette", chair: "pattern" },
-      { x: 220, y: 360, w: 78, h: 78, shape: "unit banquette", chair: "pattern" },
-      { x: 340, y: 360, w: 78, h: 78, shape: "unit banquette", chair: "pattern" },
-      { x: 630, y: 250, w: 78, h: 78, shape: "unit joined", chair: "teal" },
-      { x: 708, y: 250, w: 78, h: 78, shape: "unit joined", chair: "teal" },
-      { x: 630, y: 398, w: 78, h: 78, shape: "unit joined", chair: "teal" },
-      { x: 708, y: 398, w: 78, h: 78, shape: "unit joined", chair: "teal" },
-      { x: 816, y: 520, w: 76, h: 76, shape: "circle", chair: "teal" },
-      { x: 105, y: 526, w: 76, h: 76, shape: "circle", chair: "" },
-      { x: 250, y: 526, w: 76, h: 76, shape: "circle", chair: "" },
-      { x: 395, y: 526, w: 76, h: 76, shape: "circle", chair: "" },
-      { x: 665, y: 524, w: 76, h: 76, shape: "circle", chair: "teal" }
+    const tableSpecs = [
+      spec("10", 96, 246, 122, 66, 6, "rectangle", "six"),
+      spec("11", 222, 244, 58, 78, 4),
+      spec("12", 308, 244, 58, 78, 4),
+      spec("13", 394, 244, 58, 78, 4),
+      spec("14", 480, 244, 58, 78, 4),
+      spec("15", 566, 244, 58, 78, 4),
+      spec("16", 652, 244, 58, 78, 4),
+      spec("20", 306, 356, 58, 78, 4),
+      spec("21", 394, 356, 58, 78, 4),
+      spec("23", 566, 356, 58, 78, 4),
+      spec("30", 306, 470, 58, 78, 4),
+      spec("31", 394, 470, 58, 78, 4),
+      spec("32", 482, 470, 52, 58, 2, "square", "two"),
+      spec("40", 94, 582, 142, 62, 6, "rectangle", "six"),
+      spec("50", 826, 356, 58, 78, 4),
+      spec("51", 826, 244, 58, 78, 4),
+      spec("52", 916, 244, 52, 58, 2, "square", "two"),
+      spec("53", 916, 356, 58, 78, 4),
+      spec("54", 1006, 356, 52, 58, 2, "square", "two"),
+      spec("55", 1006, 244, 52, 58, 2, "square", "two"),
+      spec("56", 1096, 244, 58, 78, 4),
+      spec("57", 1096, 356, 52, 58, 2, "square", "two"),
+      spec("64", 1338, 444, 62, 62, 2, "round", "round2"),
+      spec("70", 885, 670, 64, 64, 3, "round", "round2"),
+      spec("71", 1018, 670, 64, 64, 3, "round", "round2"),
+      spec("74", 1338, 548, 70, 70, 3, "high", "round3"),
+      spec("75", 908, 488, 52, 58, 2, "square", "two"),
+      spec("76", 1044, 488, 52, 58, 2, "square", "two"),
+      spec("60", 1160, 242, 46, 132, 0, "sofa", "none"),
+      spec("61", 1238, 242, 46, 132, 0, "sofa", "none"),
+      spec("62", 1292, 242, 46, 132, 0, "sofa", "none"),
+      spec("63", 1375, 242, 46, 132, 0, "sofa", "none"),
+      spec("72", 1118, 705, 48, 122, 0, "sofa", "none"),
+      spec("73", 1195, 705, 48, 122, 0, "sofa", "none")
     ];
+
+    function spec(id, x, y, w, h, seatCount, tableType = "rectangle", chairMode = "sides") {
+      return {
+        id,
+        name: `Table ${id}`,
+        seatCount,
+        tableType,
+        chairMode,
+        sizePreset: seatCount === 6 ? "six" : seatCount === 2 ? "two" : tableType,
+        layout: { x, y, w, h, shape: tableType, r: 0 }
+      };
+    }
 
     const now = Date.now();
     const minutesAgo = (m) => new Date(now - m * 60000).toISOString();
@@ -889,6 +1054,10 @@
     function makeTable(id, name, guests = 0, seatedAt = "", stepOverrides = {}, extras = {}) {
       return {
         id, name, guests, seatedAt,
+        seatCount: extras.seatCount ?? 4,
+        tableType: extras.tableType ?? "rectangle",
+        chairMode: extras.chairMode ?? "sides",
+        sizePreset: extras.sizePreset ?? "four",
         attention: false,
         attentionNote: "",
         moment: "",
@@ -899,21 +1068,33 @@
       };
     }
 
+    function demoTable(id, guests = 0, seatedAt = "", stepOverrides = {}, extras = {}) {
+      const meta = tableSpecs.find(t => t.id === id);
+      return makeTable(id, meta?.name || `Table ${id}`, guests, seatedAt, stepOverrides, {
+        seatCount: meta?.seatCount ?? 4,
+        tableType: meta?.tableType ?? "rectangle",
+        chairMode: meta?.chairMode ?? "sides",
+        sizePreset: meta?.sizePreset ?? "four",
+        layout: meta ? { ...meta.layout } : null,
+        ...extras
+      });
+    }
+
     const demoTables = [
-      makeTable("1", "Window 1", 2, minutesAgo(18), {
+      demoTable("10", 2, minutesAgo(18), {
         water: { done: true, time: minutesAgo(16), note: "Still water, lime." },
         drinks: { done: true, time: minutesAgo(12), note: "Two Picpoul." },
         drinksArrived: { done: true, time: minutesAgo(8), note: "" }
       }),
-      makeTable("2", "Terrace 2", 4, minutesAgo(42), {
+      demoTable("11", 4, minutesAgo(42), {
         water: { done: true, time: minutesAgo(39), note: "" },
         drinks: { done: true, time: minutesAgo(36), note: "One AF beer." },
         drinksArrived: { done: true, time: minutesAgo(31), note: "" },
         food: { done: true, time: minutesAgo(32), note: "" }
       }),
-      makeTable("3", "Bar 3", 0, "", {}),
-      makeTable("4", "Booth 4", 5, minutesAgo(13), {}, { attention: true, attentionNote: "High chair." }),
-      makeTable("5", "Sea 5", 3, minutesAgo(67), {
+      demoTable("12", 0, "", {}),
+      demoTable("13", 4, minutesAgo(13), {}, { attention: true, attentionNote: "High chair." }),
+      demoTable("50", 3, minutesAgo(67), {
         water: { done: true, time: minutesAgo(65), note: "" },
         drinks: { done: true, time: minutesAgo(62), note: "" },
         drinksArrived: { done: true, time: minutesAgo(58), note: "" },
@@ -922,13 +1103,13 @@
         checkBack: { done: true, time: minutesAgo(24), note: "Happy." },
         clearDessert: { done: true, time: minutesAgo(8), note: "Birthday brownie." }
       }, { moment: "Birthday: Sophie. Picpoul." }),
-      makeTable("6", "Deck 6", 2, minutesAgo(35), {
+      demoTable("55", 2, minutesAgo(35), {
         water: { done: true, time: minutesAgo(33), note: "" },
         drinks: { done: true, time: minutesAgo(30), note: "" },
         drinksArrived: { done: true, time: minutesAgo(27), note: "" },
         food: { done: true, time: minutesAgo(31), note: "Chase kitchen." }
       }),
-      makeTable("7", "Lounge 7", 2, minutesAgo(92), {
+      demoTable("70", 2, minutesAgo(92), {
         water: { done: true, time: minutesAgo(90), note: "" },
         drinks: { done: true, time: minutesAgo(86), note: "" },
         drinksArrived: { done: true, time: minutesAgo(82), note: "" },
@@ -938,7 +1119,10 @@
         clearDessert: { done: true, time: minutesAgo(16), note: "" },
         moreDrinksBill: { done: true, time: minutesAgo(3), note: "Bill requested." }
       }),
-      makeTable("8", "Garden 8", 0, "", {}, { leftTime: minutesAgo(6) })
+      demoTable("72", 0, "", {}, { leftTime: minutesAgo(6) }),
+      ...tableSpecs
+        .filter(meta => !["10", "11", "12", "13", "50", "55", "70", "72"].includes(meta.id))
+        .map(meta => demoTable(meta.id))
     ];
 
     let state = load();
@@ -962,21 +1146,31 @@
 
     function defaultFixtures() {
       return [
-        { id: "prep", type: "prep", x: 0, y: 0, w: 310, h: 165, r: 0 },
-        { id: "storage", type: "storage", x: 540, y: 0, w: 410, h: 140, r: 0 },
-        { id: "bar", type: "bar", x: 168, y: 154, w: 330, h: 78, r: 0 },
-        { id: "pass", type: "pass", x: 612, y: 162, w: 210, h: 28, r: 0 },
-        { id: "sofa", type: "sofa", x: 50, y: 492, w: 440, h: 40, r: 0 },
-        { id: "window", type: "window", x: 0, y: 544, w: 960, h: 12, r: 0 },
-        { id: "deck", type: "deck", x: -10, y: 554, w: 980, h: 106, r: 0 }
+        { id: "sea", type: "sea", x: 0, y: 0, w: 1500, h: 82, r: 0 },
+        { id: "deck", type: "deck", x: -10, y: 82, w: 1520, h: 66, r: 0 },
+        { id: "window", type: "window", x: 0, y: 148, w: 1500, h: 28, r: 0 },
+        { id: "entry", type: "storage", x: 660, y: 118, w: 130, h: 325, r: 0, label: "ENTRANCE" },
+        { id: "stairs-up", type: "storage", x: 660, y: 118, w: 130, h: 140, r: 0, label: "STAIRS UP" },
+        { id: "host", type: "pass", x: 740, y: 388, w: 76, h: 90, r: -14, label: "HOST" },
+        { id: "fire", type: "door", x: 18, y: 430, w: 58, h: 92, r: 0, label: "FIRE EXIT" },
+        { id: "kitchen-pass", type: "pass", x: 52, y: 716, w: 54, h: 142, r: 0, label: "KITCHEN PASS" },
+        { id: "barback", type: "storage", x: 128, y: 690, w: 176, h: 170, r: 0, label: "BARBACK" },
+        { id: "bar", type: "bar", x: 455, y: 760, w: 565, h: 86, r: 0 },
+        { id: "stairs-down", type: "storage", x: 1268, y: 746, w: 92, h: 112, r: 0, label: "STAIRS DOWN" },
+        { id: "stairs-up-br", type: "storage", x: 1365, y: 746, w: 92, h: 112, r: 0, label: "STAIRS UP" }
       ];
     }
 
     function normalizeState(value) {
       value.fixtures ||= defaultFixtures();
       value.tables.forEach((table, index) => {
+        const meta = tableSpecs.find(t => t.id === table.id);
         table.steps = blankSteps(table.steps || {});
-        table.layout ||= { ...layouts[index % layouts.length] };
+        table.seatCount ??= meta?.seatCount ?? table.seatCount ?? 4;
+        table.tableType ??= meta?.tableType ?? "rectangle";
+        table.chairMode ??= meta?.chairMode ?? "sides";
+        table.sizePreset ??= meta?.sizePreset ?? "four";
+        table.layout ||= meta ? { ...meta.layout } : { ...tableSpecs[index % tableSpecs.length].layout };
       });
       return value;
     }
@@ -1084,25 +1278,44 @@
     }
 
     function tableDefaultGuests(table) {
-      const layout = getLayout(table);
-      if (layout.w >= 140 || layout.h >= 140 || String(layout.shape || "").includes("joined")) return 2;
-      return 1;
+      return Math.max(1, Math.min(6, table.seatCount || 1));
+    }
+
+    function tableClass(table, layout) {
+      const type = table.tableType === "sofa" ? "sofa-table" : table.tableType || layout.shape || "rectangle";
+      return [type, table.sizePreset, layout.shape].filter(Boolean).join(" ");
+    }
+
+    function renderChairs(table) {
+      if (table.tableType === "sofa" || table.chairMode === "none" || !table.seatCount) return "";
+      const sideChair = (side, y) => `<i class="chair side-${side}" style="--cy:${y}%"></i>`;
+      const longChair = (side, x) => `<i class="chair long-${side}" style="--cx:${x}%"></i>`;
+      const radialChair = angle => `<i class="chair radial" style="--a:${angle}deg"></i>`;
+      if (table.chairMode === "six" || table.seatCount >= 6) {
+        return [22, 50, 78].map(x => `${longChair("top", x)}${longChair("bottom", x)}`).join("");
+      }
+      if (table.chairMode?.startsWith("round") || ["round", "high"].includes(table.tableType)) {
+        const count = Math.max(2, Math.min(4, table.seatCount || 2));
+        return Array.from({ length: count }, (_, index) => radialChair(index * (360 / count))).join("");
+      }
+      const rows = table.seatCount <= 2 ? [50] : [34, 66];
+      return rows.map(y => `${sideChair("left", y)}${sideChair("right", y)}`).join("");
     }
 
     function renderFloor() {
       const fixtures = (state.fixtures || []).map(renderFixture).join("");
       const tables = state.tables.map((table, index) => {
-        const layout = table.layout || layouts[index % layouts.length];
+        const layout = table.layout || getSpecLayout(table, index);
         const s = statuses[statusKey(table)];
         const tableAlerts = alerts(table);
-        const chair = layout.chair ? ` ${layout.chair}` : "";
+        const chairMarkup = renderChairs(table);
         return `
-          <button class="table ${layout.shape || "unit"} ${table.id === state.selectedId ? "selected" : ""} ${tableAlerts.length ? "alert" : ""}"
+          <button class="table ${tableClass(table, layout)} ${table.id === state.selectedId ? "selected" : ""} ${tableAlerts.length ? "alert" : ""}"
             data-id="${table.id}" type="button"
-            style="--x:${layout.x}px;--y:${layout.y}px;--w:${layout.w}px;--h:${layout.h}px;--status:${s.color}"
+            style="--x:${layout.x}px;--y:${layout.y}px;--w:${layout.w}px;--h:${layout.h}px;--status:${s.color};transform:rotate(${layout.r || 0}deg)"
             aria-label="${table.name}">
             <span class="piece">
-              <i class="chair top${chair}"></i><i class="chair right${chair}"></i><i class="chair bottom${chair}"></i><i class="chair left${chair}"></i>
+              ${chairMarkup}
               <span class="shape"></span>
               <span class="badge">${shortName(table.name)}<small>${table.guests ? `${table.guests}p · ${elapsed(table.seatedAt)}` : "Empty"}</small></span>
               <span class="flag">${tableAlerts[0] || s.label}</span>
@@ -1119,14 +1332,16 @@
 
     function renderFixture(item) {
       const style = `left:${item.x}px;top:${item.y}px;width:${item.w}px;height:${item.h}px;transform:rotate(${item.r || 0}deg)`;
-      if (item.type === "prep") return `<div class="room prep fixture" data-fixture="${item.id}" style="${style}"></div>`;
-      if (item.type === "storage") return `<div class="room storage fixture" data-fixture="${item.id}" style="${style}"></div>`;
+      const label = item.label || "";
+      if (item.type === "sea") return `<div class="sea fixture" data-fixture="${item.id}" style="${style}"></div>`;
+      if (item.type === "prep") return `<div class="room prep fixture" data-fixture="${item.id}" style="${style}">${label}</div>`;
+      if (item.type === "storage") return `<div class="room storage fixture" data-fixture="${item.id}" style="${style}">${label}</div>`;
       if (item.type === "bar") return `<div class="bar fixture" data-fixture="${item.id}" style="${style}"></div>`;
-      if (item.type === "pass") return `<div class="label fixture" data-fixture="${item.id}" style="${style}">PASS</div>`;
+      if (item.type === "pass") return `<div class="room pass fixture" data-fixture="${item.id}" style="${style}">${label || "PASS"}</div>`;
       if (item.type === "sofa") return `<div class="sofa fixture" data-fixture="${item.id}" style="${style}"><i style="--seat:#cbd4bd"></i><i style="--seat:#a8bbb6"></i><i style="--seat:#089199"></i><i style="--seat:#c7ceb8"></i><i style="--seat:#afbfbc"></i><i style="--seat:#089199"></i></div>`;
       if (item.type === "window") return `<div class="window fixture" data-fixture="${item.id}" style="${style}"></div>`;
       if (item.type === "deck") return `<div class="deck fixture" data-fixture="${item.id}" style="${style}"></div>`;
-      if (item.type === "door") return `<div class="window fixture door" data-fixture="${item.id}" style="${style}"></div>`;
+      if (item.type === "door") return `<div class="room fixture door" data-fixture="${item.id}" style="${style}">${label}</div>`;
       if (item.type === "wall") return `<div class="room fixture wall" data-fixture="${item.id}" style="${style}"></div>`;
       return "";
     }
@@ -1195,19 +1410,23 @@
     }
 
     function applyZoom() {
+      mapScale.style.setProperty("--floor-w", `${FLOOR_WIDTH}px`);
+      mapScale.style.setProperty("--floor-h", `${FLOOR_HEIGHT}px`);
       mapScale.style.setProperty("--zoom", zoom);
       floor.style.setProperty("--zoom", zoom);
       const rect = mapViewport.getBoundingClientRect();
-      mapScale.style.setProperty("--map-x", `${Math.max(0, (rect.width - 960 * zoom) / 2)}px`);
-      mapScale.style.setProperty("--map-y", `${Math.max(0, (rect.height - 650 * zoom) / 2)}px`);
+      mapScale.style.setProperty("--map-x", `${Math.max(0, (rect.width - FLOOR_WIDTH * zoom) / 2)}px`);
+      mapScale.style.setProperty("--map-y", `${Math.max(2, Math.min(8, rect.height - FLOOR_HEIGHT * zoom))}px`);
     }
 
     function fitZoom() {
       const rect = mapViewport.getBoundingClientRect();
-      zoom = Math.max(0.32, Math.min(1.35, Math.min(rect.width / 960, rect.height / 650)));
+      const widthFit = rect.width / FLOOR_WIDTH;
+      const heightFit = rect.height / FLOOR_HEIGHT;
+      zoom = Math.max(0.32, Math.min(1.35, Math.min(widthFit, heightFit * 1.14)));
       applyZoom();
-      mapViewport.scrollLeft = Math.max(0, (960 * zoom + Math.max(0, (rect.width - 960 * zoom) / 2) * 2 - rect.width) / 2);
-      mapViewport.scrollTop = Math.max(0, (650 * zoom + Math.max(0, (rect.height - 650 * zoom) / 2) * 2 - rect.height) / 2);
+      mapViewport.scrollLeft = Math.max(0, (FLOOR_WIDTH * zoom + Math.max(0, (rect.width - FLOOR_WIDTH * zoom) / 2) * 2 - rect.width) / 2);
+      mapViewport.scrollTop = Math.max(0, (FLOOR_HEIGHT * zoom + Math.max(0, (rect.height - FLOOR_HEIGHT * zoom) / 2) * 2 - rect.height) / 2);
     }
 
     floor.addEventListener("pointerdown", (event) => {
@@ -1247,8 +1466,8 @@
       const dx = (event.clientX - dragging.startX) / zoom;
       const dy = (event.clientY - dragging.startY) / zoom;
       if (Math.abs(dx) + Math.abs(dy) > 2) dragging.moved = true;
-      layout.x = Math.max(0, Math.min(900, Math.round(dragging.x + dx)));
-      layout.y = Math.max(0, Math.min(590, Math.round(dragging.y + dy)));
+      layout.x = Math.max(0, Math.min(FLOOR_WIDTH - layout.w, Math.round(dragging.x + dx)));
+      layout.y = Math.max(0, Math.min(FLOOR_HEIGHT - layout.h, Math.round(dragging.y + dy)));
       if (dragging.type === "table") record.layout = layout;
       renderFloor();
       applyZoom();
@@ -1267,9 +1486,59 @@
     function getLayout(table) {
       if (!table.layout) {
         const index = state.tables.findIndex(t => t.id === table.id);
-        table.layout = { ...layouts[index % layouts.length] };
+        table.layout = getSpecLayout(table, index);
       }
       return table.layout;
+    }
+
+    function getSpecLayout(table, index = 0) {
+      const meta = tableSpecs.find(t => t.id === table.id);
+      if (meta) return { ...meta.layout };
+      const col = index % 8;
+      const row = Math.floor(index / 8) % 4;
+      return { x: 420 + col * 86, y: 250 + row * 92, w: 58, h: 78, shape: table.tableType || "rectangle", r: 0 };
+    }
+
+    function defaultNewTableLayout() {
+      return { x: 420, y: 520, w: 58, h: 78, shape: "rectangle", r: 0 };
+    }
+
+    function chairModeFor(tableType, seatCount) {
+      if (tableType === "sofa") return "none";
+      if (["round", "high"].includes(tableType)) return `round${Math.max(2, Math.min(4, seatCount || 2))}`;
+      if ((seatCount || 0) >= 6) return "six";
+      if ((seatCount || 0) <= 2) return "two";
+      return "sides";
+    }
+
+    function applyTableKind(table, tableType = table.tableType, seatCount = table.seatCount) {
+      table.tableType = tableType;
+      table.seatCount = Math.max(0, Math.min(8, Number(seatCount) || 0));
+      table.chairMode = chairModeFor(table.tableType, table.seatCount);
+      table.sizePreset = table.seatCount === 6 ? "six" : table.seatCount === 2 ? "two" : table.tableType;
+      const layout = getLayout(table);
+      layout.shape = table.tableType;
+      if (table.tableType === "round" || table.tableType === "high") {
+        const size = table.tableType === "high" ? 70 : 64;
+        layout.w = size;
+        layout.h = size;
+      } else if (table.tableType === "sofa") {
+        layout.w = Math.max(layout.w, 46);
+        layout.h = Math.max(layout.h, 122);
+      } else if (table.tableType === "square") {
+        layout.w = 52;
+        layout.h = table.seatCount <= 2 ? 58 : 52;
+      } else if (table.seatCount >= 6) {
+        layout.w = Math.max(layout.w, 122);
+        layout.h = Math.min(Math.max(layout.h, 58), 78);
+      } else if (table.seatCount <= 2) {
+        layout.w = 52;
+        layout.h = 58;
+      } else {
+        layout.w = 58;
+        layout.h = 78;
+      }
+      table.layout = layout;
     }
 
     floor.addEventListener("click", (event) => {
@@ -1326,9 +1595,9 @@
       }
       if (event.target.matches("[data-reset]") && confirm(`Reset ${table.name}?`)) {
         mutate(() => {
-          const layout = table.layout;
+          const { layout, seatCount, tableType, chairMode, sizePreset } = table;
           const index = state.tables.findIndex(t => t.id === table.id);
-          state.tables[index] = makeTable(table.id, table.name, 0, "", {}, { layout });
+          state.tables[index] = makeTable(table.id, table.name, 0, "", {}, { layout, seatCount, tableType, chairMode, sizePreset });
         });
       }
     });
@@ -1358,7 +1627,7 @@
 
     document.getElementById("demoBtn").addEventListener("click", () => {
       if (!confirm("Reset demo data?")) return;
-      mutate(() => state = { selectedId: "", tables: demoTables });
+      mutate(() => state = normalizeState({ selectedId: "", tables: demoTables, fixtures: defaultFixtures() }));
       setTimeout(fitZoom, 0);
     });
 
@@ -1367,8 +1636,14 @@
       if (!name?.trim()) return;
       mutate(() => {
         const id = String(Date.now());
-        const layout = { ...layouts[state.tables.length % layouts.length], shape: "unit", w: 78, h: 78 };
-        state.tables.push(makeTable(id, name.trim(), 0, "", {}, { layout }));
+        const layout = defaultNewTableLayout();
+        state.tables.push(makeTable(id, name.trim(), 0, "", {}, {
+          layout,
+          seatCount: 4,
+          tableType: "rectangle",
+          chairMode: "sides",
+          sizePreset: "rectangle"
+        }));
         state.selectedId = id;
       });
     });
@@ -1406,20 +1681,49 @@
       });
     });
 
+    document.getElementById("typeBtn").addEventListener("click", () => {
+      const table = selected();
+      if (!table) return;
+      const types = ["rectangle", "square", "round", "high", "sofa"];
+      mutate(() => {
+        const next = types[(types.indexOf(table.tableType) + 1) % types.length];
+        const seats = next === "sofa" ? 0 : table.seatCount || (next === "round" ? 2 : 4);
+        applyTableKind(table, next, seats);
+      });
+    });
+
+    document.getElementById("seatsBtn").addEventListener("click", () => {
+      const table = selected();
+      if (!table) return;
+      const value = prompt("Seat count", String(table.seatCount || 0));
+      if (value === null) return;
+      mutate(() => applyTableKind(table, table.tableType, Number(value)));
+    });
+
     document.getElementById("splitBtn").addEventListener("click", () => {
       const table = selected();
       if (!table) return;
       mutate(() => {
         const layout = getLayout(table);
         const wasJoined = layout.w > 90;
-        layout.shape = "unit";
-        layout.w = 78;
+        table.tableType = "rectangle";
+        table.seatCount = 4;
+        table.chairMode = "sides";
+        table.sizePreset = "rectangle";
+        layout.shape = "rectangle";
+        layout.w = 58;
         layout.h = 78;
         table.layout = layout;
         if (wasJoined) {
           const id = String(Date.now());
-          const nextLayout = { ...layout, x: Math.min(882, layout.x + 84), y: layout.y };
-          state.tables.push(makeTable(id, `${table.name}B`, 0, "", {}, { layout: nextLayout }));
+          const nextLayout = { ...layout, x: Math.min(FLOOR_WIDTH - layout.w, layout.x + 84), y: layout.y };
+          state.tables.push(makeTable(id, `${table.name}B`, 0, "", {}, {
+            layout: nextLayout,
+            seatCount: 4,
+            tableType: "rectangle",
+            chairMode: "sides",
+            sizePreset: "rectangle"
+          }));
           state.selectedId = id;
         }
       });
@@ -1430,9 +1734,13 @@
       if (!table) return;
       mutate(() => {
         const layout = getLayout(table);
-        layout.shape = "unit joined";
-        layout.w = 156;
-        layout.h = 78;
+        table.tableType = "rectangle";
+        table.seatCount = 6;
+        table.chairMode = "six";
+        table.sizePreset = "six";
+        layout.shape = "rectangle joined";
+        layout.w = 142;
+        layout.h = 62;
         table.layout = layout;
       });
     });
