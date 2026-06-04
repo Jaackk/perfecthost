@@ -74,22 +74,18 @@
     .floor {
       position: absolute;
       inset: 0 auto auto 0;
-      width: 1500px;
-      height: 900px;
+      width: 1665px;
+      height: 945px;
       transform: scale(var(--zoom, 1));
       transform-origin: 0 0;
-      border: 11px solid #101820;
+      border: 0;
       border-radius: 14px;
       overflow: hidden;
       background:
-        radial-gradient(circle at 74% 38%, rgba(255, 191, 98, 0.08), transparent 24%),
-        radial-gradient(circle at 12% 58%, rgba(255, 172, 72, 0.07), transparent 20%),
-        repeating-linear-gradient(0deg, rgba(28, 15, 8, 0.14) 0 1px, transparent 1px 18px),
-        repeating-linear-gradient(90deg, rgba(255, 223, 170, 0.035) 0 2px, transparent 2px 84px),
-        linear-gradient(90deg, #4f2d1e 0%, #724327 48%, #58331f 100%);
+        url("./emptymap5.png") center / 100% 100% no-repeat,
+        #2f1b11;
       box-shadow:
-        inset 0 0 0 2px rgba(255, 255, 255, 0.06),
-        inset 0 0 70px rgba(0, 0, 0, 0.34),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.04),
         0 24px 70px rgba(0, 0, 0, 0.48);
     }
 
@@ -103,11 +99,16 @@
         radial-gradient(circle at 4% 26%, rgba(246, 182, 92, 0.16), transparent 9%),
         radial-gradient(circle at 96% 34%, rgba(246, 182, 92, 0.15), transparent 9%);
       z-index: 2;
+      display: none;
     }
 
     .room, .bar, .label, .sofa, .window, .deck {
       position: absolute;
       z-index: 1;
+    }
+
+    .fixture {
+      display: none;
     }
 
     .room {
@@ -963,8 +964,9 @@
   <script>
     const STORAGE_KEY = "perfect-host-v10";
     const UNDO_LIMIT = 50;
-    const FLOOR_WIDTH = 1500;
-    const FLOOR_HEIGHT = 900;
+    const MAP_VERSION = "blank-map-v1";
+    const FLOOR_WIDTH = 1665;
+    const FLOOR_HEIGHT = 945;
     const statuses = {
       empty: { label: "Empty", color: "#d8d0c3" },
       seated: { label: "Sat", color: "#547c92" },
@@ -992,40 +994,41 @@
     ];
 
     const tableSpecs = [
-      spec("10", 96, 246, 122, 66, 6, "rectangle", "six"),
-      spec("11", 222, 244, 58, 78, 4),
-      spec("12", 308, 244, 58, 78, 4),
-      spec("13", 394, 244, 58, 78, 4),
-      spec("14", 480, 244, 58, 78, 4),
-      spec("15", 566, 244, 58, 78, 4),
-      spec("16", 652, 244, 58, 78, 4),
-      spec("20", 306, 356, 58, 78, 4),
-      spec("21", 394, 356, 58, 78, 4),
-      spec("23", 566, 356, 58, 78, 4),
-      spec("30", 306, 470, 58, 78, 4),
-      spec("31", 394, 470, 58, 78, 4),
-      spec("32", 482, 470, 52, 58, 2, "square", "two"),
-      spec("40", 94, 582, 142, 62, 6, "rectangle", "six"),
-      spec("50", 826, 356, 58, 78, 4),
-      spec("51", 826, 244, 58, 78, 4),
-      spec("52", 916, 244, 52, 58, 2, "square", "two"),
-      spec("53", 916, 356, 58, 78, 4),
-      spec("54", 1006, 356, 52, 58, 2, "square", "two"),
-      spec("55", 1006, 244, 52, 58, 2, "square", "two"),
-      spec("56", 1096, 244, 58, 78, 4),
-      spec("57", 1096, 356, 52, 58, 2, "square", "two"),
-      spec("64", 1338, 444, 62, 62, 2, "round", "round2"),
-      spec("70", 885, 670, 64, 64, 3, "round", "round2"),
-      spec("71", 1018, 670, 64, 64, 3, "round", "round2"),
-      spec("74", 1338, 548, 70, 70, 3, "high", "round3"),
-      spec("75", 908, 488, 52, 58, 2, "square", "two"),
-      spec("76", 1044, 488, 52, 58, 2, "square", "two"),
-      spec("60", 1160, 242, 46, 132, 0, "sofa", "none"),
-      spec("61", 1238, 242, 46, 132, 0, "sofa", "none"),
-      spec("62", 1292, 242, 46, 132, 0, "sofa", "none"),
-      spec("63", 1375, 242, 46, 132, 0, "sofa", "none"),
-      spec("72", 1118, 705, 48, 122, 0, "sofa", "none"),
-      spec("73", 1195, 705, 48, 122, 0, "sofa", "none")
+      spec("10", 86, 198, 126, 68, 6, "rectangle", "six"),
+      spec("11", 218, 154, 64, 86, 4),
+      spec("12", 296, 154, 64, 86, 4),
+      spec("13", 374, 154, 64, 86, 4),
+      spec("14", 452, 154, 64, 86, 4),
+      spec("15", 530, 154, 64, 86, 4),
+      spec("16", 608, 154, 64, 86, 4),
+      spec("20", 326, 298, 64, 86, 4),
+      spec("21", 414, 298, 64, 86, 4),
+      spec("23", 584, 298, 64, 86, 4),
+      spec("30", 326, 426, 64, 86, 4),
+      spec("31", 414, 426, 64, 86, 4),
+      spec("32", 504, 426, 58, 64, 2, "square", "two"),
+      spec("33", 590, 426, 64, 86, 4),
+      spec("40", 84, 520, 154, 68, 6, "rectangle", "six"),
+      spec("50", 882, 314, 64, 86, 4),
+      spec("51", 882, 160, 64, 86, 4),
+      spec("52", 982, 160, 58, 64, 2, "square", "two"),
+      spec("53", 982, 314, 64, 86, 4),
+      spec("54", 1086, 306, 58, 64, 2, "square", "two"),
+      spec("55", 1086, 160, 58, 64, 2, "square", "two"),
+      spec("56", 1190, 184, 64, 96, 4),
+      spec("57", 1190, 328, 58, 64, 2, "square", "two"),
+      spec("64", 1450, 438, 72, 72, 2, "round", "round2"),
+      spec("70", 970, 664, 74, 74, 3, "round", "round3"),
+      spec("71", 1140, 672, 74, 74, 3, "round", "round3"),
+      spec("74", 1450, 574, 76, 76, 3, "high", "round3"),
+      spec("75", 1072, 484, 64, 64, 2, "high", "round2"),
+      spec("76", 1252, 484, 64, 64, 2, "high", "round2"),
+      spec("60", 1282, 170, 62, 142, 0, "sofa", "none"),
+      spec("61", 1378, 170, 62, 142, 0, "sofa", "none"),
+      spec("62", 1438, 170, 62, 142, 0, "sofa", "none"),
+      spec("63", 1532, 170, 62, 142, 0, "sofa", "none"),
+      spec("72", 1258, 735, 62, 136, 0, "sofa", "none"),
+      spec("73", 1364, 735, 62, 136, 0, "sofa", "none")
     ];
 
     function spec(id, x, y, w, h, seatCount, tableType = "rectangle", chairMode = "sides") {
@@ -1141,7 +1144,7 @@
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (saved?.tables?.length) return normalizeState(saved);
       } catch {}
-      return normalizeState({ selectedId: "", tables: demoTables, fixtures: defaultFixtures() });
+      return normalizeState({ selectedId: "", tables: demoTables, fixtures: defaultFixtures(), mapVersion: MAP_VERSION });
     }
 
     function defaultFixtures() {
@@ -1163,6 +1166,7 @@
 
     function normalizeState(value) {
       value.fixtures ||= defaultFixtures();
+      const needsLayoutMigration = value.mapVersion !== MAP_VERSION;
       value.tables.forEach((table, index) => {
         const meta = tableSpecs.find(t => t.id === table.id);
         table.steps = blankSteps(table.steps || {});
@@ -1170,8 +1174,19 @@
         table.tableType ??= meta?.tableType ?? "rectangle";
         table.chairMode ??= meta?.chairMode ?? "sides";
         table.sizePreset ??= meta?.sizePreset ?? "four";
+        if (needsLayoutMigration && meta) {
+          table.layout = { ...meta.layout };
+          table.seatCount = meta.seatCount;
+          table.tableType = meta.tableType;
+          table.chairMode = meta.chairMode;
+          table.sizePreset = meta.sizePreset;
+        }
         table.layout ||= meta ? { ...meta.layout } : { ...tableSpecs[index % tableSpecs.length].layout };
       });
+      tableSpecs.forEach((meta) => {
+        if (!value.tables.some(table => table.id === meta.id)) value.tables.push(demoTable(meta.id));
+      });
+      value.mapVersion = MAP_VERSION;
       return value;
     }
 
@@ -1303,7 +1318,7 @@
     }
 
     function renderFloor() {
-      const fixtures = (state.fixtures || []).map(renderFixture).join("");
+      const fixtures = "";
       const tables = state.tables.map((table, index) => {
         const layout = table.layout || getSpecLayout(table, index);
         const s = statuses[statusKey(table)];
@@ -1627,7 +1642,7 @@
 
     document.getElementById("demoBtn").addEventListener("click", () => {
       if (!confirm("Reset demo data?")) return;
-      mutate(() => state = normalizeState({ selectedId: "", tables: demoTables, fixtures: defaultFixtures() }));
+      mutate(() => state = normalizeState({ selectedId: "", tables: demoTables, fixtures: defaultFixtures(), mapVersion: MAP_VERSION }));
       setTimeout(fitZoom, 0);
     });
 
